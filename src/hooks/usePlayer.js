@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 import { randomTetromino } from "../tetrominos";
+import { STAGE_WIDTH } from "../gameHelper";
 
 export const usePlayer = () => {
   //함수 컴포넌트는 this.state사용이 안되기 때문에 대신 useState Hook을 직접 컴포넌트에 호출한다.
@@ -9,10 +10,22 @@ export const usePlayer = () => {
     tetromino: randomTetromino().shape,
     collided: false
   });
-  return [player];
 
-  // 동일
-  // const playerState = useState();
-  // const player = playerState[0]
-  // const setPlayer = playerState[1]
+  const updatePlayerPos = ({ x, y, collided }) => {
+    setPlayer(prev => ({
+      ...prev,
+      pos: { x: (prev.pos.x += x), y: (prev.pos.y += y) },
+      collided
+    }));
+  };
+
+  const resetPlayer = useCallback(() => {
+    setPlayer({
+      pos: { x: STAGE_WIDTH / 2 - 2, y: 0 },
+      tetromino: randomTetromino().shape,
+      collided: false
+    });
+  }, []);
+
+  return [player, updatePlayerPos, resetPlayer];
 };
